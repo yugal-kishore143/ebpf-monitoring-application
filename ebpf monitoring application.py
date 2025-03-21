@@ -4,8 +4,6 @@ import subprocess
 import os
 import signal
 import threading
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
 global process
 process = None
@@ -26,7 +24,6 @@ def run_bcctool():
             
 def read_output(proc):
     header_set = False
-    data = []
     for line in proc.stdout:
         if process is None:  # Stop reading if process is terminated
             break
@@ -39,14 +36,11 @@ def read_output(proc):
             header_set = True
         else:
             output_table.insert("", "end", values=values)
-            data.append(values)
         output_table.update_idletasks()
     for line in proc.stderr:
         if process is None:
             break
         output_table.insert("", "end", values=("ERROR:", line.strip()), tags=("error",))
-    if process is not None:
-        plot_graph(data)
 
 def stop_bcctool():
     global process
@@ -58,29 +52,6 @@ def stop_bcctool():
 
 def clear_output():
     output_table.delete(*output_table.get_children())
-
-def plot_graph(data):
-    if not data:
-        return
-    try:
-        fig, ax = plt.subplots()
-        numeric_data = [[float(x) for x in row if x.replace('.', '', 1).isdigit()] for row in data]
-        if numeric_data:
-            for i, col in enumerate(zip(*numeric_data)):
-                ax.plot(col, label=f"Column {i}")
-            ax.legend()
-            ax.set_title("Monitoring Data Graph")
-            ax.set_xlabel("Entries")
-            ax.set_ylabel("Values")
-        
-        for widget in graph_frame.winfo_children():
-            widget.destroy()
-        
-        canvas = FigureCanvasTkAgg(fig, master=graph_frame)
-        canvas.draw()
-        canvas.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-    except Exception as e:
-        output_table.insert("", "end", values=("Graph Error:", str(e)), tags=("error",))
 
 def on_closing():
     stop_bcctool()
@@ -142,15 +113,5 @@ output_table = ttk.Treeview(frame, show="headings", yscrollcommand=scrollbar.set
 scrollbar.config(command=output_table.yview)
 scrollbar.pack(side="right", fill="y")
 output_table.pack(side="left", fill=tk.BOTH, expand=True)
-
-# Graph Frame
-graph_frame = ttk.Frame(root)
-graph_frame.pack(fill=tk.BOTH, expand=True, pady=10)
-
-# Graph button
-graph_button = tk.Button(button_frame, text="Generate Graph", command=lambda: plot_graph([]), bg="lightgray", fg="black", font=("Arial", 10, "bold"))
-graph_button.grid(row=0, column=3, padx=5)
-graph_button.bind("<Enter>", lambda e: on_hover(e, graph_button, "purple"))
-graph_button.bind("<Leave>", lambda e: on_leave(e, graph_button, "lightgray"))
 
 root.mainloop()
