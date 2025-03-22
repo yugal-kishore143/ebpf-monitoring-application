@@ -53,9 +53,42 @@ def stop_bcctool():
 def clear_output():
     output_table.delete(*output_table.get_children())
 
+
 def generate_graph():
-    # Placeholder function for generating graphs
-    output_table.insert("", "end", values=("Graph generation not implemented yet.",))
+    # Extract data from the table
+    data = []
+    for child in output_table.get_children():
+        values = output_table.item(child)["values"]
+        data.append(values)
+    
+    if len(data) < 2:
+        output_table.insert("", "end", values=("Not enough data to generate graph.",), tags=("error",))
+        return
+    
+    # Convert data to numeric, ignoring non-numeric values
+    x_data = []
+    y_data = []
+    for row in data:
+        try:
+            x = float(row[0])
+            y = float(row[1])
+            x_data.append(x)
+            y_data.append(y)
+        except ValueError:
+            continue
+    
+    if not x_data or not y_data:
+        output_table.insert("", "end", values=("No numeric data found for graph generation.",), tags=("error",))
+        return
+    
+    # Generate the graph
+    plt.figure(figsize=(10, 6))
+    plt.plot(x_data, y_data, marker='o')
+    plt.xlabel("Column 1")
+    plt.ylabel("Column 2")
+    plt.title("Graph of Column 1 vs Column 2")
+    plt.grid(True)
+    plt.show()
 
 def on_closing():
     stop_bcctool()
@@ -91,25 +124,25 @@ button_frame = ttk.Frame(root)
 button_frame.pack(pady=5)
 
 # Run button
-run_button = tk.Button(button_frame, text="Start Monitoring", command=run_bcctool, bg="lightgray", fg="black", font=("Arial", 10, "bold"))
+run_button = tk.Button(button_frame, text="Start Monitoring", command=run_bcctool, bg="green", fg="black", font=("Arial", 10, "bold"))
 run_button.grid(row=0, column=0, padx=5)
 run_button.bind("<Enter>", lambda e: on_hover(e, run_button, "green"))
 run_button.bind("<Leave>", lambda e: on_leave(e, run_button, "lightgray"))
 
 # Stop button
-stop_button = tk.Button(button_frame, text="Stop Monitoring", command=stop_bcctool, bg="lightgray", fg="black", font=("Arial", 10, "bold"))
+stop_button = tk.Button(button_frame, text="Stop Monitoring", command=stop_bcctool, bg="red", fg="black", font=("Arial", 10, "bold"))
 stop_button.grid(row=0, column=1, padx=5)
 stop_button.bind("<Enter>", lambda e: on_hover(e, stop_button, "red"))
 stop_button.bind("<Leave>", lambda e: on_leave(e, stop_button, "lightgray"))
 
 # Clear output button
-clear_button = tk.Button(button_frame, text="Clear Output", command=clear_output, bg="lightgray", fg="black", font=("Arial", 10, "bold"))
+clear_button = tk.Button(button_frame, text="Clear Output", command=clear_output, bg="blue", fg="black", font=("Arial", 10, "bold"))
 clear_button.grid(row=0, column=2, padx=5)
 clear_button.bind("<Enter>", lambda e: on_hover(e, clear_button, "blue"))
 clear_button.bind("<Leave>", lambda e: on_leave(e, clear_button, "lightgray"))
 
 # Generate graph button
-graph_button = tk.Button(button_frame, text="Generate Graph", command=generate_graph, bg="lightgray", fg="black", font=("Arial", 10, "bold"))
+graph_button = tk.Button(button_frame, text="Generate Graph", command=generate_graph, bg="purple", fg="black", font=("Arial", 10, "bold"))
 graph_button.grid(row=0, column=3, padx=5)
 graph_button.bind("<Enter>", lambda e: on_hover(e, graph_button, "purple"))
 graph_button.bind("<Leave>", lambda e: on_leave(e, graph_button, "lightgray"))
