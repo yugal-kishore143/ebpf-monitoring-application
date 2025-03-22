@@ -53,6 +53,10 @@ def stop_bcctool():
 def clear_output():
     output_table.delete(*output_table.get_children())
 
+def generate_graph():
+    # Placeholder function for generating graphs
+    output_table.insert("", "end", values=("Graph generation not implemented yet.",))
+
 def on_closing():
     stop_bcctool()
     root.destroy()
@@ -103,6 +107,12 @@ clear_button = tk.Button(button_frame, text="Clear Output", command=clear_output
 clear_button.grid(row=0, column=2, padx=5)
 clear_button.bind("<Enter>", lambda e: on_hover(e, clear_button, "blue"))
 clear_button.bind("<Leave>", lambda e: on_leave(e, clear_button, "lightgray"))
+
+# Generate graph button
+graph_button = tk.Button(button_frame, text="Generate Graph", command=generate_graph, bg="lightgray", fg="black", font=("Arial", 10, "bold"))
+graph_button.grid(row=0, column=3, padx=5)
+graph_button.bind("<Enter>", lambda e: on_hover(e, graph_button, "purple"))
+graph_button.bind("<Leave>", lambda e: on_leave(e, graph_button, "lightgray"))
 
 # Table output with a scrollbar
 frame = ttk.Frame(root)
